@@ -3,7 +3,7 @@ import subprocess
 import time
 import os
 
-drive_id = "1-iC97qVqueAT0kHL0sS93DBqZJpsP_ds"
+drive_id = "lv_0_20250730211419.mp4"
 local_file = "video.mp4"
 stream_key = "0akr-61bb-wc67-4qgr-c2xc"
 stream_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
