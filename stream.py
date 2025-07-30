@@ -4,7 +4,7 @@ import time
 import os
 
 # 🎬 Your Google Drive video ID
-drive_id = "10ekhoiKdDCzITZ6G3JLx-4UpYWFbbNQL."
+drive_id = "10ekhoiKdDCzITZ6G3JLx-4UpYWFbbNQL"
 local_file = "video.mp4"
 
 # 🔑 Your YouTube stream key (hardcoded as requested)
