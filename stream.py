@@ -1,47 +1,41 @@
-import gdown
+import yt_dlp
 import subprocess
 import time
-import os
 
-# 🎬 Your Google Drive video ID
-drive_id = "1-iC97qVqueAT0kHL0sS93DBqZJpsP_ds"
-local_file = "video.mp4"
+# 🔗 Your YouTube Playlist URL
+playlist_url = "https://www.youtube.com/playlist?list=YOUR_PLAYLIST_ID"
 
-# 🔑 Your YouTube stream key (hardcoded as requested)
+# 🔑 Your YouTube Stream Key (already pasted)
 stream_key = "0akr-61bb-wc67-4qgr-c2xc"
 stream_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
 
-def download_video():
-    if os.path.exists(local_file):
-        print("✅ Video already exists, skipping download.")
-        return
+# 📦 Fetch all video URLs from playlist
+def get_playlist_links(url):
+    ydl_opts = {"extract_flat": True, "quiet": True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return [entry['url'] for entry in info['entries'] if 'url' in entry]
 
-    print("📥 Starting download from Google Drive...")
+# 🎥 Stream one video at a time
+def stream_video(video_url):
+    print(f"🎬 Streaming: {video_url}")
     try:
-        gdown.download(id=drive_id, output=local_file, quiet=False)
-        print("✅ Download complete.")
-    except Exception as e:
-        print(f"🚨 Download failed: {e}")
+        subprocess.run([
+            "ffmpeg", "-re", "-i", video_url,
+            "-c:v", "copy", "-c:a", "aac",
+            "-f", "flv", stream_url
+        ], check=True)
+    except subprocess.CalledProcessError:
+        print("⚠️ FFmpeg crashed. Skipping...")
         time.sleep(5)
-        exit(1)
 
-def stream_loop():
+# 🔁 Auto-Rotation Loop
+def stream_playlist():
     while True:
-        print("🎥 Starting stream...")
-        try:
-            subprocess.run([
-                "ffmpeg",
-                "-re",
-                "-i", local_file,
-                "-c:v", "copy",
-                "-c:a", "aac",
-                "-f", "flv",
-                stream_url
-            ], check=True)
-        except subprocess.CalledProcessError:
-            print("⚠️ FFmpeg crashed. Retrying in 5 sec...")
-            time.sleep(5)
+        video_list = get_playlist_links(playlist_url)
+        for video_url in video_list:
+            stream_video(video_url)
 
+# 🚀 Start Streaming
 if __name__ == "__main__":
-    download_video()
-    stream_loop()
+    stream_playlist()
