@@ -36,7 +36,7 @@ def stream_loop():
                 "-c:v", "copy",
                 "-c:a", "aac",
                 "-f", "flv",
-                stream_urls
+                stream_url
             ], check=True)
         except subprocess.CalledProcessError:
             print("⚠️ FFmpeg crashed. Retrying in 5 sec...")
