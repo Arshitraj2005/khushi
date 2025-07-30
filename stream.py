@@ -3,9 +3,9 @@ import subprocess
 import time
 
 # 🔗 Your YouTube Playlist URL
-playlist_url = "https://www.youtube.com/playlist?list=YOUR_PLAYLIST_ID"
+playlist_url = "https://www.youtube.com/playlist?list=PLu-MpimWrpP93K6AaLrVxxnAHvIQO5QOP"
 
-# 🔑 Your YouTube Stream Key (already pasted)
+# 🔑 Your YouTube Stream Key
 stream_key = "0akr-61bb-wc67-4qgr-c2xc"
 stream_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
 
