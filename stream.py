@@ -1,41 +1,47 @@
-import yt_dlp
+import gdown
 import subprocess
 import time
+import os
 
-# 🔗 Your YouTube Playlist URL
-playlist_url = "https://www.youtube.com/playlist?list=PLu-MpimWrpP93K6AaLrVxxnAHvIQO5QOP"
+# 🎬 Your Google Drive video ID
+drive_id = "1-iC97qVqueAT0kHL0sS93DBqZJpsP_ds"
+local_file = "video.mp4"
 
-# 🔑 Your YouTube Stream Key
-stream_key = "0akr-61bb-wc67-4qgr-c2xc"
+# 🔑 Your YouTube stream key (hardcoded as requested)
+stream_key = "3gr0-q51j-d1ct-8702-bdb7"
 stream_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
 
-# 📦 Fetch all video URLs from playlist
-def get_playlist_links(url):
-    ydl_opts = {"extract_flat": True, "quiet": True}
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-        return [entry['url'] for entry in info['entries'] if 'url' in entry]
+def download_video():
+    if os.path.exists(local_file):
+        print("✅ Video already exists, skipping download.")
+        return
 
-# 🎥 Stream one video at a time
-def stream_video(video_url):
-    print(f"🎬 Streaming: {video_url}")
+    print("📥 Starting download from Google Drive...")
     try:
-        subprocess.run([
-            "ffmpeg", "-re", "-i", video_url,
-            "-c:v", "copy", "-c:a", "aac",
-            "-f", "flv", stream_url
-        ], check=True)
-    except subprocess.CalledProcessError:
-        print("⚠️ FFmpeg crashed. Skipping...")
+        gdown.download(id=drive_id, output=local_file, quiet=False)
+        print("✅ Download complete.")
+    except Exception as e:
+        print(f"🚨 Download failed: {e}")
         time.sleep(5)
+        exit(1)
 
-# 🔁 Auto-Rotation Loop
-def stream_playlist():
+def stream_loop():
     while True:
-        video_list = get_playlist_links(playlist_url)
-        for video_url in video_list:
-            stream_video(video_url)
+        print("🎥 Starting stream...")
+        try:
+            subprocess.run([
+                "ffmpeg",
+                "-re",
+                "-i", local_file,
+                "-c:v", "copy",
+                "-c:a", "aac",
+                "-f", "flv",
+                stream_urls
+            ], check=True)
+        except subprocess.CalledProcessError:
+            print("⚠️ FFmpeg crashed. Retrying in 5 sec...")
+            time.sleep(5)
 
-# 🚀 Start Streaming
 if __name__ == "__main__":
-    stream_playlist()
+    download_video()
+    stream_loop()
