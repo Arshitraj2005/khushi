@@ -38,6 +38,8 @@ def stream_loop():
                 "ffmpeg",
                 "-stream_loop", "-1", "-i", video_file,   # loop video forever
                 "-stream_loop", "-1", "-i", audio_file,   # loop audio forever
+                "-map", "0:v:0",   # take video from first input
+                "-map", "1:a:0",   # take audio from second input
                 "-c:v", "libx264", "-preset", "veryfast", "-tune", "zerolatency",
                 "-c:a", "aac", "-b:a", "128k",
                 "-pix_fmt", "yuv420p",
