@@ -3,7 +3,7 @@ import subprocess
 import time
 import os
 
-# 🎬 Google Drive IDs
+# 🎬 Google Drive IDs (change these to your own IDs)
 video_drive_id = "1zOqir9W5hYTbHMAAolrs5Dh71XwZHX7l"   # Video file
 audio_drive_id = "1fO8xVEIKALIZAMMYcFEMQK4Rk0cFtBp6"   # Audio file
 
@@ -11,12 +11,13 @@ audio_drive_id = "1fO8xVEIKALIZAMMYcFEMQK4Rk0cFtBp6"   # Audio file
 video_file = "video.mp4"
 audio_file = "audio.mp3"
 
-# 🔑 YouTube Stream Key
+# 🔑 YouTube Stream Key (replace with your key)
 stream_key = "2c4f-5sy5-q7tx-cz4t-0c8r"
 stream_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
 
 
 def download_file(drive_id, output_file):
+    """Download file from Google Drive if not exists"""
     if os.path.exists(output_file):
         print(f"✅ {output_file} already exists, skipping download.")
         return
@@ -31,16 +32,22 @@ def download_file(drive_id, output_file):
 
 
 def stream_loop():
+    """Start infinite streaming loop"""
     while True:
-        print("🎥 Starting stream (Video + Audio)...")
+        print("🎥 Starting 1080p 30fps optimized stream...")
         try:
             subprocess.run([
                 "ffmpeg",
-                "-stream_loop", "-1", "-i", video_file,   # loop video forever
-                "-stream_loop", "-1", "-i", audio_file,   # loop audio forever
-                "-map", "0:v:0",   # take video from first input
-                "-map", "1:a:0",   # take audio from second input
-                "-c:v", "libx264", "-preset", "veryfast", "-tune", "zerolatency",
+                "-stream_loop", "-1", "-i", video_file,   # loop video
+                "-stream_loop", "-1", "-i", audio_file,   # loop audio
+                "-map", "0:v:0",
+                "-map", "1:a:0",
+                "-c:v", "libx264",
+                "-preset", "veryfast",
+                "-b:v", "5000k",          # avg bitrate ~5 Mbps (1080p30)
+                "-maxrate", "5500k",      # peak bitrate
+                "-bufsize", "10000k",     # smoother buffering
+                "-g", "60",               # keyframe every 2s (30fps)
                 "-c:a", "aac", "-b:a", "128k",
                 "-pix_fmt", "yuv420p",
                 "-f", "flv", stream_url
