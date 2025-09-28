@@ -3,15 +3,15 @@ import subprocess
 import time
 import os
 
-# 🎬 Google Drive IDs (replace with your own)
-video_drive_id = "1zOqir9W5hYTbHMAAolrs5Dh71XwZHX7l"   # Video file
-audio_drive_id = "1fO8xVEIKALIZAMMYcFEMQK4Rk0cFtBp6"   # Audio file
+# ==== Google Drive IDs ====
+video_drive_id = "1zOqir9W5hYTbHMAAolrs5Dh71XwZHX7l"
+audio_drive_id = "1fO8xVEIKALIZAMMYcFEMQK4Rk0cFtBp6"
 
-# 📂 Local file names
+# ==== Local files ====
 video_file = "video.mp4"
 audio_file = "audio.mp3"
 
-# 🔑 YouTube Stream Key (replace with yours)
+# ==== YouTube Stream Key ====
 stream_key = "2c4f-5sy5-q7tx-cz4t-0c8r"
 stream_url = f"rtmp://a.rtmp.youtube.com/live2/{stream_key}"
 
@@ -21,41 +21,37 @@ def download_file(drive_id, output_file):
     if os.path.exists(output_file):
         print(f"✅ {output_file} already exists, skipping download.")
         return
-    print(f"📥 Downloading {output_file} from Google Drive...")
+    print(f"📥 Downloading {output_file} ...")
     try:
         gdown.download(id=drive_id, output=output_file, quiet=False)
         print(f"✅ {output_file} download complete.")
     except Exception as e:
-        print(f"🚨 Download failed for {output_file}: {e}")
-        time.sleep(5)
+        print(f"🚨 Failed to download {output_file}: {e}")
         exit(1)
 
 
 def stream_loop():
-    """Start infinite streaming loop"""
+    """Run continuous YouTube Live stream"""
     while True:
-        print("🎥 Starting smooth YouTube stream (1080p30, stable keyframes)...")
+        print("🚀 Starting YouTube Live Stream (1080p30, smooth loop)...")
         try:
             subprocess.run([
                 "ffmpeg",
-                "-re",                          # stream in realtime
-                "-stream_loop", "-1", "-i", video_file,   # loop video forever
-                "-stream_loop", "-1", "-i", audio_file,   # loop audio forever
-                "-map", "0:v:0",                # take video from first input
-                "-map", "1:a:0",                # take audio from second input
-                "-c:v", "libx264",              # encode video → stable
+                "-stream_loop", "-1", "-i", video_file,   # loop video
+                "-stream_loop", "-1", "-i", audio_file,   # loop audio
+                "-map", "0:v:0", "-map", "1:a:0",         # video + audio mapping
+                "-c:v", "libx264",
                 "-preset", "veryfast",
-                "-b:v", "2500k",                # bitrate 2.5 Mbps
-                "-maxrate", "3000k",            # peak bitrate
-                "-bufsize", "6000k",            # buffer size
-                "-g", "60",                     # keyframe every 2s (30fps → gop=60)
-                "-r", "30",                     # 30fps
-                "-c:a", "aac", "-b:a", "128k",  # encode audio
-                "-pix_fmt", "yuv420p",          # required for YouTube
+                "-b:v", "4500k",       # video bitrate
+                "-maxrate", "5000k",
+                "-bufsize", "10000k",
+                "-g", "60", "-r", "30", 
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-b:a", "128k", "-ar", "44100",
                 "-f", "flv", stream_url
             ], check=True)
         except subprocess.CalledProcessError:
-            print("⚠️ FFmpeg crashed. Retrying in 5 sec...")
+            print("⚠️ FFmpeg crashed, retrying in 5 sec...")
             time.sleep(5)
 
 
