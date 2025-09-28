@@ -4,7 +4,7 @@ import time
 import os
 
 # Google Drive IDs
-video_drive_id = "1fWBOy78St8hSu_p9S29iyKqqVvSpts1X"  # 30p video, 1 min
+video_drive_id = "1fWBOy78St8hSu_p9S29iyKqqVvSpts1X"  # 30s video
 audio_drive_id = "1fO8xVEIKALIZAMMYcFEMQK4Rk0cFtBp6"   # 1h30 audio
 
 # Local file names
@@ -23,18 +23,18 @@ def download_file(drive_id, output_file):
     gdown.download(id=drive_id, output=output_file, quiet=False)
 
 def stream_video_loop():
-    """Loop video independently, then overlay audio in parts"""
+    """Loop video + audio both infinitely"""
     while True:
         print("Starting stream...")
         try:
             subprocess.run([
                 "ffmpeg",
-                "-re",                     # read video in real-time
-                "-stream_loop", "-1", "-i", video_file,  # loop video forever
-                "-i", audio_file,          # audio input (can be split)
+                "-re",                     
+                "-stream_loop", "-1", "-i", video_file,   # loop video forever
+                "-stream_loop", "-1", "-i", audio_file,   # loop audio forever
                 "-map", "0:v:0",
                 "-map", "1:a:0",
-                "-c:v", "copy",            # CPU-friendly
+                "-c:v", "copy",            
                 "-c:a", "aac", "-b:a", "128k",
                 "-f", "flv",
                 stream_url
